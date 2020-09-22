@@ -14,6 +14,7 @@ Load **tidyverse**, **readxl* and **janitor** into your setup chunk.
 library(tidyverse)
 library(readxl)
 library(janitor)
+library
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -40,7 +41,12 @@ sep_old <-
          title = course_title,
          name = course_name,
          department = course_department) %>% 
-  filter(u_grad > 10)
+  filter(u_grad > 10) %>%
+  group_by(title) %>%
+  summarise(total_enrollment = sum(u_grad))
+  
+
+sep_old
 
 # But this is not correct! Look for Gov 50: Data. What do you see? What can you
 # do to clean it up?
@@ -52,6 +58,25 @@ sep_old <-
 **Prompt:** Read in and clean the new data, creating an object called `sep_new`. 
 
 
+```{r, sep_new}
+sep_new <- 
+  read_excel("new_data/class_enrollment_summary_by_term_9-22-2020.xlsx", 
+             skip = 3) %>% 
+  clean_names() %>% 
+  filter(! is.na(course_title)) %>% 
+  select(-grad, -non_degree, -x_reg, -vus, -employee, 
+         -withdraw, -total, -instructor_full_name, -course_section_code) %>%
+  rename(id = course_id,
+         title = course_title,
+         name = course_name,
+         department = course_department) %>% 
+  filter(u_grad > 10) %>%
+  group_by(title) %>%
+  summarise(total_enrollment = sum(u_grad))
+  
+```
+
+
 
 ### Scene 2
 
@@ -60,11 +85,17 @@ sep_old <-
 
 Before we start on the model, Wisdom suggests we should:
 
+-Define what we want to know
+  -Why the course enrollment dropped from 9/1 to 9/21
+  -Reason for why people dropped the course
+-be thoughtful in cleaning data to see useful trends
 
 
 
 After we have a model, Temperance suggests we should:
 
+-Recognize that the model might not be able to fully explain all factors in a student's decision to drop the course
+  -internal and external factors not accounted for may influence enrollment
 
 
 ### Scene 3
